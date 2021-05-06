@@ -371,3 +371,33 @@ description
 -----------
 
 This argument describes the parameter.
+
+example
+-------
+
+This attribute specifies an optional example value for the parameter. If combined
+with 'choices' or 'schema', the example must be in the list of choices, or obey the schema.
+
+schema
+------
+
+This optional argument specifies a json schema. A json schema describes how data should
+be structured and formatted, and therefore provides a powerful tool to impose requirements
+on the value of a parameter.
+
+For example, to ensure that the value of a parameter is formatted as a uuid, one can use
+
+::
+
+  {"type":"string", "pattern":"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}
+
+as schema. To ensure that the value is a list of unique integers selected from a predefined set,
+
+::
+
+  {"type":"array", "items": {"type": "integer", "enum": [2, 4, 8, 16]}, "uniqueItems": true}
+
+would be appropriate. For more info, visit the `json schema website <https://json-schema.org/>`.
+
+When combined with schema, values for the 'default' and 'example' argument must obey the schema.
+Schema can't be combined with the 'choices' argument.

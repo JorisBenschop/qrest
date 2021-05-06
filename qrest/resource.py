@@ -7,6 +7,7 @@ to add functionality such as complex pagination or response processing
 
 import requests
 import logging
+import jsonschema
 from urllib.parse import quote, urljoin
 from abc import ABC
 from typing import Optional
@@ -26,6 +27,7 @@ from .exception import (
     RestCredentailsError,
     RestResourceHTTPError,
     InvalidResourceError,
+    RestClientValidationError
 )
 from .response import CSVResponse, JSONResponse
 from .auth import AuthConfig
@@ -341,6 +343,21 @@ class Resource(ABC):
                             choices=", ".join(config.choices),
                         )
                     )
+
+        # ----------------------------------
+        # Check schemas
+        for parameter in kwargs:
+            if parameter not in self.config.parameters:
+                continue
+            config = self.config.parameters[parameter]
+            if config.schema:
+                instance = kwargs[parameter]
+                schema_validator_cls = jsonschema.validators.validator_for(config.schema)
+                try:
+                    schema_validator_cls(config.schema).validate(instance)
+                except jsonschema.ValidationError:
+                    msg = 'value for {} does not obey schema'.format(parameter)
+                    raise RestClientValidationError(msg)
 
         # ----------------------------------
         # check query parameters
