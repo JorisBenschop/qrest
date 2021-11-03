@@ -9,7 +9,7 @@ import requests
 import logging
 import jsonschema
 from urllib.parse import quote, urljoin
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Optional
 from _io import BufferedReader
 
@@ -207,6 +207,11 @@ class Resource(ABC):
     cleaned_data = None
 
     response: Response
+
+    @abstractmethod
+    def clone(self):
+        """Return a new instance created with the same parameters as the current one."""
+        ...
 
     # ---------------------------------------------------------------------------------------------
     def configure(self, name: str, server_url: str, config, auth=None, verify_ssl: bool = False):
@@ -597,14 +602,24 @@ class JSONResource(Resource):
             to contain the previously obtained subsection of the json tree
         """
 
+        self.initial_kwargs = {
+            "extract_section": extract_section,
+            "create_attribute": create_attribute,
+        }
         self.response = JSONResponse(extract_section, create_attribute)
+
+    def clone(self):
+        """Return a new instance created with the same parameters as the current one."""
+        return self.__class__(**self.initial_kwargs)
 
 
 class CSVResource(Resource):
-    """ A REST Resource that expects a text/csv return
-
-    """
+    """A REST Resource that expects a text/csv return"""
 
     def __init__(self):
         """Set the use of a CSVResponse."""
         self.response = CSVResponse()
+
+    def clone(self):
+        """Return a new instance created with the same parameters as the current one."""
+        return self.__class__()

@@ -250,10 +250,14 @@ class ResourceConfig:
         self.parameters = parameters or {}
         self.headers = headers
 
-        #  we cannot set default processor above in the parameters as this means all endpoints
-        #  share the same processor instance, and they cross-contaminate . By setting this below
-        #  we enforce recreation of a new unique Resource instance each time
-        self.processor = processor if processor is not None else JSONResource()
+        if processor is not None:
+            if not isinstance(processor, Resource):
+                raise RestClientConfigurationError("processor must be subclass of RestResource")
+        # The processor is None or it's a Resource instance. If it's a Resource
+        # instance and we use that exact instance for all endpoints, the
+        # endpoints "cross-contaminate". To avoid that, we use a new Resource
+        # instance that is a "clone" of the given one.
+        self.processor = processor.clone() if processor is not None else JSONResource()
         self.validate()
 
     @classmethod

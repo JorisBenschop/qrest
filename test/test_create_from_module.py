@@ -60,6 +60,19 @@ class CreateAPIFromModuleTests(unittest.TestCase):
 
 @ddt.ddt
 class ResourceConfigCreateTests(unittest.TestCase):
+    def test_use_different_processors(self):
+        class MyConfig(ResourceConfig):
+            name = "my_config"
+            path = ["my", "config"]
+            method = "GET"
+
+            processor = JSONResource()
+
+        config = MyConfig.create()
+        another_config = MyConfig.create()
+
+        self.assertNotEqual(config.processor, another_config.processor)
+
     def test_pass_required_attributes(self):
         class MyConfig(ResourceConfig):
             name = "my_config"
