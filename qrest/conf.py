@@ -252,12 +252,12 @@ class ResourceConfig:
 
         if processor is not None:
             if not isinstance(processor, Resource):
-                raise RestClientConfigurationError("processor must be subclass of RestResource")
-        # The processor is None or it's a Resource instance. If it's a Resource
-        # instance and we use that exact instance for all endpoints, the
-        # endpoints "cross-contaminate". To avoid that, we use a new Resource
-        # instance that is a "clone" of the given one.
-        self.processor = processor.clone() if processor is not None else JSONResource()
+                raise RestClientConfigurationError("processor must be subclass of Resource")
+        # If the processor is a Resource instance and we use that exact
+        # instance for all endpoints, the endpoints "cross-contaminate". To
+        # avoid that, we use a new Resource instance that is created in the
+        # same way as the given one.
+        self.processor = processor.create_new() if processor is not None else JSONResource()
         self.validate()
 
     @classmethod
@@ -335,7 +335,7 @@ class ResourceConfig:
         #  resource class ----------------------------------
         if self.processor:
             if not isinstance(self.processor, Resource):
-                raise RestClientConfigurationError("processor must be subclass of RestResource")
+                raise RestClientConfigurationError("processor must be subclass of Resource")
 
         # integration tests ---------------------------------------------------
         if self.method == "GET":

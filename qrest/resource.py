@@ -209,8 +209,16 @@ class Resource(ABC):
     response: Response
 
     @abstractmethod
-    def clone(self):
-        """Return a new instance created with the same parameters as the current one."""
+    def create_new(self):
+        """Return a new instance initialized with the same parameters as self.
+
+        A ResourceConfig can be configured with a custom processor, which is a
+        Resource instance. If you create multiple ResourceConfig instances, you
+        don't want them to use the same Resource instance. This is where the
+        current method comes in: it allows you to recreate a Resource instance
+        so that each ResourceConfig gets its own copy.
+
+        """
         pass
 
     # ---------------------------------------------------------------------------------------------
@@ -608,8 +616,8 @@ class JSONResource(Resource):
         }
         self.response = JSONResponse(extract_section, create_attribute)
 
-    def clone(self):
-        """Return a new instance created with the same parameters as the current one."""
+    def create_new(self):
+        """Return a new instance initialized with the same parameters as self."""
         return self.__class__(**self.initial_kwargs)
 
 
@@ -620,6 +628,6 @@ class CSVResource(Resource):
         """Set the use of a CSVResponse."""
         self.response = CSVResponse()
 
-    def clone(self):
-        """Return a new instance created with the same parameters as the current one."""
+    def create_new(self):
+        """Return a new instance initialized with the same parameters as self."""
         return self.__class__()
