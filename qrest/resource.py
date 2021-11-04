@@ -211,7 +211,7 @@ class Resource(ABC):
     @abstractmethod
     def clone(self):
         """Return a new instance created with the same parameters as the current one."""
-        ...
+        pass
 
     # ---------------------------------------------------------------------------------------------
     def configure(self, name: str, server_url: str, config, auth=None, verify_ssl: bool = False):
