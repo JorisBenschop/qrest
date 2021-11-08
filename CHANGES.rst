@@ -1,7 +1,7 @@
 3.3.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Use new Resource for endpoints configured with Resource instance.
 
 
 3.3.0 (2021-05-10)
