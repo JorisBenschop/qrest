@@ -1,4 +1,4 @@
-3.3.1 (unreleased)
+4.0.0 (2021-11-08)
 ------------------
 
 - Use new Resource for endpoints configured with Resource instance.
