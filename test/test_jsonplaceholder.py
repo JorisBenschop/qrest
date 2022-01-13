@@ -61,6 +61,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/posts",
                 params={},
                 json={},
+                timeout=None,
                 files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -81,6 +82,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/posts",
                 params={},
                 json={},
+                timeout=None,
                 files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -102,6 +104,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={},
                 json={},
                 files=[],
+                timeout=None,
                 headers={
                     "Content-type": "application/json; charset=UTF-8",
                     "X-test-post": "qREST python ORM",
@@ -125,6 +128,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={"userId": 1},
                 json={},
                 files=[],
+                timeout=None,
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
 
@@ -153,6 +157,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={},
                 json={},
                 files=[],
+                timeout=None,
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
 
@@ -181,6 +186,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={},
                 json={"title": title, "body": content, "userId": user_id},
                 files=[],
+                timeout=None,
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
             self.assertIs(api.create_post.response, response)
@@ -201,6 +207,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/files",
                 params={},
                 json={},
+                timeout=None,
                 files=[('file', ('__init__.py', file))],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -222,6 +229,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/posts",
                 params={},
                 json=post,
+                timeout=None,
                 files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -238,3 +246,14 @@ class TestJsonPlaceHolder(unittest.TestCase):
             api.create_post_with_schema.get_response(post=post)
 
         self.assertEqual(exc.exception.args[0], "value for post does not obey schema")
+
+    def test_timeout_exceptions(self):
+        api = qrest.API(jsonplaceholderconfig)
+
+        with self.assertRaises(requests.Timeout) as exc:
+            api.all_posts_connect_timeout.get_response()
+            assert isinstance(exc, requests.exceptions.ConnectTimeout)
+
+        with self.assertRaises(requests.Timeout) as exc:
+            api.all_posts_read_timeout.get_response()
+            assert isinstance(exc, requests.exceptions.ReadTimeout)

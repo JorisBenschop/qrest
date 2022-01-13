@@ -96,6 +96,14 @@ information. The headers that a ResourceConfig uses consist of these defaults,
 extended or overridden by the defaults that can be specified for that
 ResourceConfig.
 
+default_timeout
+===============
+
+``default_timeout`` sets the default timeout for all ResourceConfig instances
+of the APIConfig class. Its aim is to prevent a lot of duplicate information.
+The ResourceConfig will use this timeout, unless a specific timeout parameter
+was set for the ResourceConfig, in which case the default will be overridden.
+
 authentication
 ==============
 
@@ -240,6 +248,16 @@ headers
 
 The required headers to be added to the request. Needs to be a dictionary
 
+
+timeout
+=======
+
+You can tell qrest to stop waiting for a response after a given number of
+seconds with the timeout parameter. When this time has passed, qrest will raise
+a ``requests.Timeout`` exception. The value of ``timeout`` should be
+``None`` (default), a non-negative float or int, or a tuple of size 2
+(indicating differing connection timeout and read timeout values (both tuple
+values should again be either ``None`` or a non-negative float or int)).
 
 query parameters
 ================

@@ -223,6 +223,7 @@ class ResourceConfig:
         processor: Optional[Type[Resource]] = None,
         description: Optional[str] = None,
         path_description: Optional[dict] = None,
+        timeout: Optional[float] = None
     ):
         """
         Constructor, stores externally supplied parameters and validate the quality of it
@@ -241,6 +242,8 @@ class ResourceConfig:
         :param description: A general description of the endpoint that can be obtained by the user
             through the description property of the endpointconfig instance
         :param path_description: a dictionary that provides a description for each path parameter.
+        :param timeout: the timeout for the request. Value should be tuple (connection timeout,
+            read timeout), int, float or None.
 
         """
         self.path = path
@@ -249,6 +252,7 @@ class ResourceConfig:
         self.method = method
         self.parameters = parameters or {}
         self.headers = headers
+        self.timeout = timeout
 
         if processor is not None:
             if not isinstance(processor, Resource):
@@ -277,7 +281,12 @@ class ResourceConfig:
         args = [cls.path, cls.method]
 
         kwargs = {}
-        optional_attributes = ["description", "headers", "path_description", "processor"]
+        optional_attributes = ["description",
+                               "headers",
+                               "path_description",
+                               "processor",
+                               "timeout"]
+
         for attribute in optional_attributes:
             if attribute in all_attributes:
                 kwargs[attribute] = getattr(cls, attribute)
@@ -332,6 +341,30 @@ class ResourceConfig:
                     "Parameter '%s' must be ParameterConfig instance" % str(key)
                 )
 
+        # timeout -----------------------------
+        err_msg = "timeout should be None, non-negative float/int or tuple of size 2 (indicating" \
+                  " differing connection timeout and read timeout values (both tuple values" \
+                  " should again be None or non-negative float/int))"
+
+        if isinstance(self.timeout, tuple):
+            if len(self.timeout) != 2:
+                raise RestClientConfigurationError(err_msg)
+            for value in self.timeout:
+                if isinstance(value, float) or isinstance(value, int):
+                    if value < 0:
+                        raise RestClientConfigurationError(err_msg)
+                elif value is None:
+                    pass
+                else:
+                    raise RestClientConfigurationError(err_msg)
+        elif isinstance(self.timeout, float) or isinstance(self.timeout, int):
+            if self.timeout < 0:
+                raise RestClientConfigurationError(err_msg)
+        elif self.timeout is None:
+                pass
+        else:
+            raise RestClientConfigurationError(err_msg)
+
         #  resource class ----------------------------------
         if self.processor:
             if not isinstance(self.processor, Resource):
@@ -348,12 +381,7 @@ class ResourceConfig:
 
     # --------------------------------------------------------------------------------------------
     def apply_default_headers(self, default):
-        """For internal use. Update endpoint parameters from a shared default. This
-        allows the user to set e.g. headers that are applicable to multiple
-        endpoints in a single activity.
-
-        Note that this default only provides functionality for headers
-
+        """Merge default set headers on APIConfig level with local header settings
         """
 
         # check types
@@ -365,6 +393,18 @@ class ResourceConfig:
         if self.headers:
             def_head.update(self.headers)
         self.headers = def_head
+
+        # re-validate to be sure current data is OK
+        self.validate()
+
+    # ---------------------------------------------------------------------------------------------
+    def apply_default_timeout(self, default):
+        """Merge default set timeout on APIConfig level with local timeout settings
+        """
+
+        # Only apply the default if no timeout is set at the ResourceConfig level
+        if self.timeout is None:
+            self.timeout = default
 
         # re-validate to be sure current data is OK
         self.validate()
@@ -538,6 +578,10 @@ class APIConfig:
         if "default_headers" in dir(self):
             for endpoint in self.endpoints.values():
                 endpoint.apply_default_headers(self.default_headers)
+
+        if "default_timeout" in dir(self):
+            for endpoint in self.endpoints.values():
+                endpoint.apply_default_timeout(self.default_timeout)
 
     def _validate(self):
         """

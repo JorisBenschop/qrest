@@ -255,6 +255,10 @@ class TestEndpoint(unittest.TestCase):
 
             self.UrlApiConfig(_create_endpoints(headers="none"))
 
+        with self.assertRaises(RestClientConfigurationError):
+
+            self.UrlApiConfig(_create_endpoints(timeout=-3))
+
     def test_no_endpoints(self):
         with self.assertRaises(RestClientConfigurationError):
 
@@ -296,21 +300,53 @@ class TestEndpoint(unittest.TestCase):
 
             Config(_create_endpoints())
 
+        with self.assertRaises(RestClientConfigurationError):
+
+            class Config(self.UrlApiConfig):
+                default_timeout = "error"
+
+            Config(_create_endpoints())
+
+        with self.assertRaises(RestClientConfigurationError):
+
+            class Config(self.UrlApiConfig):
+                default_timeout = (3,)
+
+            Config(_create_endpoints())
+
+        with self.assertRaises(RestClientConfigurationError):
+
+            class Config(self.UrlApiConfig):
+                default_timeout = (None, -3.0)
+
+            Config(_create_endpoints())
+
     def test_good_defaults(self):
         class Config(self.UrlApiConfig):
             default_headers = {"key": "val"}
+            default_timeout = (1.0, 2.0)
 
         Config(_create_endpoints())
 
-        config = Config(_create_endpoints(headers={"key": "oldval"}))
+        config = Config(_create_endpoints(headers={"key": "oldval"}, timeout=(1.0, None)))
         self.assertDictEqual(config.endpoints["ep"].headers, {"key": "oldval"})
+        self.assertEqual(config.endpoints["ep"].timeout, (1.0, None))
 
         class Config(self.UrlApiConfig):
             ep = ResourceConfig(path=[""], method="GET", headers={"otherkey": "val"})
             default_headers = {"key": "val"}
+            default_timeout = 3.0
 
         config = Config(_create_endpoints(headers={"otherkey": "val"}))
         self.assertDictEqual(config.endpoints["ep"].headers, {"key": "val", "otherkey": "val"})
+        self.assertEqual(config.endpoints["ep"].timeout, 3.0)
+
+        class Config(self.UrlApiConfig):
+            url = "http://localhost"
+        Config(_create_endpoints())
+
+        config = Config(_create_endpoints(headers={"key": "oldval"}))
+        self.assertEqual(config.endpoints["ep"].timeout, None)
 
     def test_descriptions(self):
         self.UrlApiConfig(_create_endpoints(description="OK"))

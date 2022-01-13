@@ -564,6 +564,7 @@ class Resource(ABC):
                 method=self.config.method,
                 auth=self.auth,
                 verify=self.verify_ssl,
+                timeout=self.config.timeout,
                 url=self.query_url,
                 params=query_parameters["request"],
                 json=query_parameters["body"],
@@ -585,6 +586,9 @@ class Resource(ABC):
             # This is a back-catcher for HTTP errors that were not caught before. Code shoul
             # not get here
             raise http
+        except requests.Timeout as timeout:
+            # Catch-all for both connection timeout and read timeout
+            raise timeout
         else:
             r = self.response(response)
             return r
