@@ -77,8 +77,16 @@ class RestResourceMissingContentError(RestClientResourceError):
     pass
 
 
+class RestCredentailsError(RestClientResourceError):
+    """ wrapper exception """
+
+    pass
+
+
 class RestResponseError(RestClientResourceError):
     """Exception due to a requests.Response whose status code indicates an error.
+
+    :ivar response: Response object returned by the request
 
     """
 
@@ -89,11 +97,6 @@ class RestResponseError(RestClientResourceError):
         self.response = response
 
 
-class RestResourceNotFoundError(RestResponseError):
-    def __init__(self, response: Response):
-        super().__init__(response, "Object could not be found in database")
-
-
 class RestAccessDeniedError(RestResponseError):
     def __init__(self, response: Response):
         super().__init__(
@@ -101,10 +104,9 @@ class RestAccessDeniedError(RestResponseError):
         )
 
 
-class RestCredentailsError(RestClientResourceError):
-    """ wrapper exception """
-
-    pass
+class RestBadRequestError(RestResponseError):
+    def __init__(self, response: Response):
+        super().__init__(response, f"Bad request for resource {response.url}")
 
 
 class RestInternalServerError(RestResponseError):
@@ -114,9 +116,9 @@ class RestInternalServerError(RestResponseError):
         )
 
 
-class RestBadRequestError(RestResponseError):
+class RestResourceNotFoundError(RestResponseError):
     def __init__(self, response: Response):
-        super().__init__(response, f"Bad request for resource {response.url}")
+        super().__init__(response, "Object could not be found in database")
 
 
 class RestUnspecificResponseError(RestResponseError):
