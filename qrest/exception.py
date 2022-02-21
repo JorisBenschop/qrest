@@ -7,31 +7,31 @@ from requests.models import Response
 
 # ================================================================================================
 class RestClientException(Exception):
-    """ wrapper exception """
+    """wrapper exception"""
 
     pass
 
 
 class RestClientResourceError(RestClientException):
-    """ wrapper exception """
+    """wrapper exception"""
 
     pass
 
 
 class RestClientConfigurationError(RestClientException):
-    """ wrapper exception """
+    """wrapper exception"""
 
     pass
 
 
 class RestClientValidationError(RestClientException):
-    """ wrapper exception """
+    """wrapper exception"""
 
     pass
 
 
 class RestClientQueryError(RestClientException):
-    """ wrapper exception """
+    """wrapper exception"""
 
     pass
 
@@ -61,10 +61,10 @@ class InvalidResourceError(RestClientException):
     """An error when specifying an invalid resource for a given REST API."""
 
     def __init__(self, name: str, resource: str):
-        """ InvalidResourceError constructor
+        """InvalidResourceError constructor
 
-            :param name: The name of the REST API client
-            :param resource: The REST API resource name
+        :param name: The name of the REST API client
+        :param resource: The REST API resource name
 
         """
         response = f"'{resource}' is not a valid resource for '{name}'"
@@ -72,45 +72,55 @@ class InvalidResourceError(RestClientException):
 
 
 class RestResourceMissingContentError(RestClientResourceError):
-    """ wrapper exception """
-
-    pass
-
-
-class RestResourceNotFoundError(RestClientResourceError):
-    """ wrapper exception """
-
-    pass
-
-
-class RestAccessDeniedError(RestClientResourceError):
-    """ wrapper exception """
-
-    pass
-
-
-class RestCredentailsError(RestClientResourceError):
-    """ wrapper exception """
-
-    pass
-
-
-class RestInternalServerError(RestClientResourceError):
-    """ wrapper exception """
-
-    pass
-
-
-class RestBadRequestError(RestClientResourceError):
-    """ wrapper exception """
+    """wrapper exception"""
 
     pass
 
 
 class RestTimeoutError(RestClientResourceError):
-    """ wrapper exception """
+    """wrapper exception"""
 
     pass
+
+
+class RestResponseError(RestClientResourceError):
+    """Exception due to a requests.Response whose status code indicates an error."""
+
+    response: Response
+
+    def __init__(self, response: Response, message: str):
+        super().__init__(message)
+        self.response = response
+
+
+class RestResourceNotFoundError(RestResponseError):
+    def __init__(self, response: Response):
+        super().__init__(response, "Object could not be found in database")
+
+
+class RestAccessDeniedError(RestResponseError):
+    def __init__(self, response: Response):
+        super().__init__(
+            response, f"error {response.status_code}: Access is denied to resource {response.url}"
+        )
+
+
+class RestCredentailsError(RestClientResourceError):
+    """wrapper exception"""
+
+    pass
+
+
+class RestInternalServerError(RestResponseError):
+    def __init__(self, response: Response):
+        super().__init__(
+            response, f"error {response.status_code}: Internal Server error ({response.reason})"
+        )
+
+
+class RestBadRequestError(RestResponseError):
+    def __init__(self, response: Response):
+        super().__init__(response, f"Bad request for resource {response.url}")
 
 
 def raise_on_response_error(response: Response):
@@ -123,16 +133,12 @@ def raise_on_response_error(response: Response):
     if response.status_code < 400:
         response.raise_for_status()
     elif response.status_code == 400:
-        raise RestBadRequestError("Bad request for resource %s" % response.url)
+        raise RestBadRequestError(response)
     elif response.status_code in (401, 402, 403):
-        raise RestAccessDeniedError(
-            "error %d: Access is denied to resource %s" % (response.status_code, response.url)
-        )
+        raise RestAccessDeniedError(response)
     elif response.status_code == 404:
-        raise RestResourceNotFoundError("Object could not be found in database")
+        raise RestResourceNotFoundError(response)
     elif response.status_code == 500:
-        raise RestInternalServerError(
-            "error %d: Internal Server error (%s)" % (response.status_code, response.reason)
-        )
+        raise RestInternalServerError(response)
     else:
         raise Exception("REST error %d: %s" % (response.status_code, response.reason))
