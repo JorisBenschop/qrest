@@ -27,7 +27,8 @@ from .exception import (
     RestCredentailsError,
     RestResourceHTTPError,
     InvalidResourceError,
-    RestClientValidationError
+    RestClientValidationError,
+    RestTimeoutError
 )
 from .response import CSVResponse, JSONResponse
 from .auth import AuthConfig
@@ -557,6 +558,9 @@ class Resource(ABC):
                         )
             query_parameters['file'].extend(extra_file)
 
+        # Convert timeout to requests format
+        timeout = tuple(None if value is 0 else value/1000 for value in self.config.timeout)
+
         # Do HTTP request to REST API
         logger.debug(" running %s" % self.query_url)
         try:
@@ -564,7 +568,7 @@ class Resource(ABC):
                 method=self.config.method,
                 auth=self.auth,
                 verify=self.verify_ssl,
-                timeout=self.config.timeout,
+                timeout=timeout,
                 url=self.query_url,
                 params=query_parameters["request"],
                 json=query_parameters["body"],
@@ -588,7 +592,8 @@ class Resource(ABC):
             raise http
         except requests.Timeout as timeout:
             # Catch-all for both connection timeout and read timeout
-            raise timeout
+            err_msg = "Request to client timed out for resource %s. requests exception: %s"
+            raise RestTimeoutError(err_msg  % (self.query_url, timeout.args[0]))
         else:
             r = self.response(response)
             return r

@@ -223,7 +223,7 @@ class ResourceConfig:
         processor: Optional[Type[Resource]] = None,
         description: Optional[str] = None,
         path_description: Optional[dict] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[tuple] = (0, 0)
     ):
         """
         Constructor, stores externally supplied parameters and validate the quality of it
@@ -243,7 +243,9 @@ class ResourceConfig:
             through the description property of the endpointconfig instance
         :param path_description: a dictionary that provides a description for each path parameter.
         :param timeout: the timeout for the request. Value should be tuple (connection timeout,
-            read timeout), int, float or None.
+            read timeout), where both timeouts are an integer, indicating the timeout duration
+            in milliseconds. A timeout of 0 (default) indicates that there shouldn't be a timeout
+            on the request.
 
         """
         self.path = path
@@ -342,28 +344,21 @@ class ResourceConfig:
                 )
 
         # timeout -----------------------------
-        err_msg = "timeout should be None, non-negative float/int or tuple of size 2 (indicating" \
-                  " differing connection timeout and read timeout values (both tuple values" \
-                  " should again be None or non-negative float/int))"
+        err_msg = "Timeout value should be tuple (connection timeout, read timeout), " \
+                  "where both timeouts are an integer, indicating the timeout duration " \
+                  "in milliseconds. A timeout of 0 (default) indicates that there " \
+                  "shouldn't be a timeout on the request"
 
-        if isinstance(self.timeout, tuple):
-            if len(self.timeout) != 2:
-                raise RestClientConfigurationError(err_msg)
-            for value in self.timeout:
-                if isinstance(value, float) or isinstance(value, int):
+        if not isinstance(self.timeout, tuple):
+            raise RestClientConfigurationError(err_msg)
+        if len(self.timeout) != 2:
+            raise RestClientConfigurationError(err_msg)
+        for value in self.timeout:
+            if isinstance(value, int):
                     if value < 0:
                         raise RestClientConfigurationError(err_msg)
-                elif value is None:
-                    pass
-                else:
-                    raise RestClientConfigurationError(err_msg)
-        elif isinstance(self.timeout, float) or isinstance(self.timeout, int):
-            if self.timeout < 0:
+            else:
                 raise RestClientConfigurationError(err_msg)
-        elif self.timeout is None:
-                pass
-        else:
-            raise RestClientConfigurationError(err_msg)
 
         #  resource class ----------------------------------
         if self.processor:
@@ -403,7 +398,7 @@ class ResourceConfig:
         """
 
         # Only apply the default if no timeout is set at the ResourceConfig level
-        if self.timeout is None:
+        if self.timeout is (0, 0):
             self.timeout = default
 
         # re-validate to be sure current data is OK

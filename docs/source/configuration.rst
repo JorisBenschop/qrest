@@ -248,16 +248,15 @@ headers
 
 The required headers to be added to the request. Needs to be a dictionary
 
-
 timeout
 =======
 
-You can tell qrest to stop waiting for a response after a given number of
-seconds with the timeout parameter. When this time has passed, qrest will raise
-a ``requests.Timeout`` exception. The value of ``timeout`` should be
-``None`` (default), a non-negative float or int, or a tuple of size 2
-(indicating differing connection timeout and read timeout values (both tuple
-values should again be either ``None`` or a non-negative float or int)).
+You can tell qrest to stop waiting for a response after a given number of milliseconds
+with the timeout parameter. When this time has passed, qrest will raise a
+``qrest.exception.RestTimeoutError`` exception. The value of ``timeout`` should be
+a tuple (connection timeout, read timeout)of size 2, where both timeouts are an
+integer, indicating the timeout duration in milliseconds. A timeout of 0 (default)
+indicates that there shouldn't be a timeout on the request.
 
 query parameters
 ================

@@ -5,7 +5,7 @@ import requests
 
 import qrest
 from qrest.response import Response
-from qrest.exception import RestClientValidationError
+from qrest.exception import RestClientValidationError, RestTimeoutError
 
 from . import jsonplaceholderconfig
 
@@ -61,7 +61,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/posts",
                 params={},
                 json={},
-                timeout=None,
+                timeout=(0,0),
                 files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -82,7 +82,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/posts",
                 params={},
                 json={},
-                timeout=None,
+                timeout=(0,0),
                 files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -104,7 +104,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={},
                 json={},
                 files=[],
-                timeout=None,
+                timeout=(0,0),
                 headers={
                     "Content-type": "application/json; charset=UTF-8",
                     "X-test-post": "qREST python ORM",
@@ -128,7 +128,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={"userId": 1},
                 json={},
                 files=[],
-                timeout=None,
+                timeout=(0,0),
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
 
@@ -157,7 +157,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={},
                 json={},
                 files=[],
-                timeout=None,
+                timeout=(0,0),
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
 
@@ -186,7 +186,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={},
                 json={"title": title, "body": content, "userId": user_id},
                 files=[],
-                timeout=None,
+                timeout=(0,0),
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
             self.assertIs(api.create_post.response, response)
@@ -207,7 +207,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/files",
                 params={},
                 json={},
-                timeout=None,
+                timeout=(0,0),
                 files=[('file', ('__init__.py', file))],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -229,7 +229,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/posts",
                 params={},
                 json=post,
-                timeout=None,
+                timeout=(0,0),
                 files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -250,10 +250,8 @@ class TestJsonPlaceHolder(unittest.TestCase):
     def test_timeout_exceptions(self):
         api = qrest.API(jsonplaceholderconfig)
 
-        with self.assertRaises(requests.Timeout) as exc:
+        with self.assertRaises(RestTimeoutError):
             api.all_posts_connect_timeout.get_response()
-            assert isinstance(exc, requests.exceptions.ConnectTimeout)
 
-        with self.assertRaises(requests.Timeout) as exc:
+        with self.assertRaises(RestTimeoutError):
             api.all_posts_read_timeout.get_response()
-            assert isinstance(exc, requests.exceptions.ReadTimeout)

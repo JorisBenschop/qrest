@@ -108,6 +108,12 @@ class RestBadRequestError(RestClientResourceError):
     pass
 
 
+class RestTimeoutError(RestClientResourceError):
+    """ wrapper excpetion """
+
+    pass
+
+
 class RestResourceHTTPError(HTTPError):
     """An error when specifying an invalid target for a given REST API."""
 

@@ -102,7 +102,7 @@ class AllPostsConnectTimeout(ResourceConfig):
     path = ["posts"]
     method = "GET"
     description = "retrieve all posts"
-    timeout = (0.01, 5.0)
+    timeout = (10, 5000)
 
 
 class AllPostsReadTimeout(ResourceConfig):
@@ -111,4 +111,4 @@ class AllPostsReadTimeout(ResourceConfig):
     path = ["posts"]
     method = "GET"
     description = "retrieve all posts"
-    timeout = (5.0, 0.01)
+    timeout = (5000, 10)
