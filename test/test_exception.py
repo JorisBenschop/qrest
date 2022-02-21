@@ -8,6 +8,7 @@ from qrest.exception import (
     RestBadRequestError,
     RestInternalServerError,
     RestResourceNotFoundError,
+    RestUnspecificResponseError,
     raise_on_response_error,
 )
 
@@ -76,10 +77,11 @@ class RaiseOnResponseErrorTests(unittest.TestCase):
         response.status_code = 600
         response.reason = "reason"
 
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(RestUnspecificResponseError) as cm:
             raise_on_response_error(response)
 
         exc = cm.exception
+        self.assertIs(exc.response, response)
         self.assertEqual("REST error 600: reason", str(exc))
 
     @ddt.data(100, 200, 300, 399)
