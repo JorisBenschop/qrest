@@ -77,16 +77,28 @@ class RestResourceMissingContentError(RestClientResourceError):
     pass
 
 
-class RestResourceNotFoundError(RestClientResourceError):
-    """ wrapper exception """
+class RestResponseError(RestClientResourceError):
+    """Exception due to a requests.Response whose status code indicates an error.
 
-    pass
+    """
+
+    response: Response
+
+    def __init__(self, response: Response, message: str):
+        super().__init__(message)
+        self.response = response
 
 
-class RestAccessDeniedError(RestClientResourceError):
-    """ wrapper exception """
+class RestResourceNotFoundError(RestResponseError):
+    def __init__(self, response: Response):
+        super().__init__(response, "Object could not be found in database")
 
-    pass
+
+class RestAccessDeniedError(RestResponseError):
+    def __init__(self, response: Response):
+        super().__init__(
+            response, f"error {response.status_code}: Access is denied to resource {response.url}"
+        )
 
 
 class RestCredentailsError(RestClientResourceError):
@@ -95,16 +107,16 @@ class RestCredentailsError(RestClientResourceError):
     pass
 
 
-class RestInternalServerError(RestClientResourceError):
-    """ wrapper exception """
+class RestInternalServerError(RestResponseError):
+    def __init__(self, response: Response):
+        super().__init__(
+            response, f"error {response.status_code}: Internal Server error ({response.reason})"
+        )
 
-    pass
 
-
-class RestBadRequestError(RestClientResourceError):
-    """ wrapper excpetion """
-
-    pass
+class RestBadRequestError(RestResponseError):
+    def __init__(self, response: Response):
+        super().__init__(response, f"Bad request for resource {response.url}")
 
 
 def raise_on_response_error(response: Response):
@@ -117,16 +129,12 @@ def raise_on_response_error(response: Response):
     if response.status_code < 400:
         response.raise_for_status()
     elif response.status_code == 400:
-        raise RestBadRequestError("Bad request for resource %s" % response.url)
+        raise RestBadRequestError(response)
     elif response.status_code in (401, 402, 403):
-        raise RestAccessDeniedError(
-            "error %d: Access is denied to resource %s" % (response.status_code, response.url)
-        )
+        raise RestAccessDeniedError(response)
     elif response.status_code == 404:
-        raise RestResourceNotFoundError("Object could not be found in database")
+        raise RestResourceNotFoundError(response)
     elif response.status_code == 500:
-        raise RestInternalServerError(
-            "error %d: Internal Server error (%s)" % (response.status_code, response.reason)
-        )
+        raise RestInternalServerError(response)
     else:
         raise Exception("REST error %d: %s" % (response.status_code, response.reason))

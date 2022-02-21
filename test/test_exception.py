@@ -23,6 +23,7 @@ class RaiseOnResponseErrorTests(unittest.TestCase):
             raise_on_response_error(response)
 
         exc = cm.exception
+        self.assertIs(exc.response, response)
         self.assertEqual(
             "Bad request for resource https://jsonplaceholder.typicode.com/posts", str(exc)
         )
@@ -36,6 +37,7 @@ class RaiseOnResponseErrorTests(unittest.TestCase):
             raise_on_response_error(response)
 
         exc = cm.exception
+        self.assertIs(exc.response, response)
         self.assertEqual("Object could not be found in database", str(exc))
 
     @ddt.data(401, 402, 403)
@@ -48,6 +50,7 @@ class RaiseOnResponseErrorTests(unittest.TestCase):
             raise_on_response_error(response)
 
         exc = cm.exception
+        self.assertIs(exc.response, response)
         self.assertEqual(
             f"error {status_code}: "
             "Access is denied to resource https://jsonplaceholder.typicode.com/posts",
@@ -64,6 +67,7 @@ class RaiseOnResponseErrorTests(unittest.TestCase):
             raise_on_response_error(response)
 
         exc = cm.exception
+        self.assertIs(exc.response, response)
         self.assertEqual("error 500: Internal Server error (reason)", str(exc))
 
     def test_raise_on_600(self):
