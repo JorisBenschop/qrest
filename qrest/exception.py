@@ -119,6 +119,11 @@ class RestBadRequestError(RestResponseError):
         super().__init__(response, f"Bad request for resource {response.url}")
 
 
+class RestUnspecificResponseError(RestResponseError):
+    def __init__(self, response: Response):
+        super().__init__(response, f"REST error {response.status_code}: {response.reason}")
+
+
 def raise_on_response_error(response: Response):
     """Raise custom exception for response status (code) 400 and higher.
 
@@ -137,4 +142,4 @@ def raise_on_response_error(response: Response):
     elif response.status_code == 500:
         raise RestInternalServerError(response)
     else:
-        raise Exception("REST error %d: %s" % (response.status_code, response.reason))
+        raise RestUnspecificResponseError(response)
