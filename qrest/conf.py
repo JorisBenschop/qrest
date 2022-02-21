@@ -2,7 +2,7 @@
 Contains the configuration classes to create a :class:`qrest.resource.API`.
 """
 from collections import defaultdict
-from typing import Dict, Optional, Type, Tuple
+from typing import Dict, List, Optional, Tuple, Type
 
 import logging
 import jsonschema
@@ -222,7 +222,7 @@ class ResourceConfig:
         headers: Optional[dict] = None,
         processor: Optional[Type[Resource]] = None,
         description: Optional[str] = None,
-        path_description: Optional[dict] = None,
+        path_description: Optional[Dict[str, str]] = None,
         timeout: Tuple[int, int] = (0, 0),
     ):
         """
@@ -250,7 +250,9 @@ class ResourceConfig:
         """
         self.path = path
         self.description = description
-        self.path_description = path_description
+        self.path_description: Dict[str, str] = (
+            path_description if path_description is not None else {}
+        )
         self.method = method
         self.parameters = parameters or {}
         self.headers = headers
@@ -283,11 +285,13 @@ class ResourceConfig:
         args = [cls.path, cls.method]
 
         kwargs = {}
-        optional_attributes = ["description",
-                               "headers",
-                               "path_description",
-                               "processor",
-                               "timeout"]
+        optional_attributes = [
+            "description",
+            "headers",
+            "path_description",
+            "processor",
+            "timeout",
+        ]
 
         for attribute in optional_attributes:
             if attribute in all_attributes:
@@ -303,7 +307,7 @@ class ResourceConfig:
 
     # ----------------------------------------------------
     def validate(self):
-        """ Check quality of each parameter and its type.
+        """Check quality of each parameter and its type.
         Each parameter is checked for type, and if a specific substructure is required
         then this is also introspected. Currently Method is limited to GET, POST or PUT for
         no reason other then no tests were conducted with HEAD, etc etc
@@ -344,10 +348,12 @@ class ResourceConfig:
                 )
 
         # timeout -----------------------------
-        err_msg = "Timeout value should be tuple (connection timeout, read timeout), " \
-                  "where both timeouts are an integer, indicating the timeout duration " \
-                  "in milliseconds. A timeout of 0 (default) indicates that there " \
-                  "shouldn't be a timeout on the request"
+        err_msg = (
+            "Timeout value should be tuple (connection timeout, read timeout), "
+            "where both timeouts are an integer, indicating the timeout duration "
+            "in milliseconds. A timeout of 0 (default) indicates that there "
+            "shouldn't be a timeout on the request"
+        )
 
         if not isinstance(self.timeout, tuple):
             raise RestClientConfigurationError(err_msg)
@@ -377,8 +383,7 @@ class ResourceConfig:
 
     # --------------------------------------------------------------------------------------------
     def apply_default_headers(self, default):
-        """Merge the given default headers with the local header settings.
-        """
+        """Merge the given default headers with the local header settings."""
 
         # check types
         if not isinstance(default, dict):
@@ -395,8 +400,7 @@ class ResourceConfig:
 
     # ---------------------------------------------------------------------------------------------
     def apply_default_timeout(self, default):
-        """Apply the given default timeouts if the local timeout is set to its default value.
-        """
+        """Apply the given default timeouts if the local timeout is set to its default value."""
 
         # Only apply the default if no timeout is set at the ResourceConfig level
         if self.timeout == (0, 0):
@@ -407,7 +411,7 @@ class ResourceConfig:
 
     # ---------------------------------------------------------------------------------------------
     @property
-    def path_parameters(self) -> list:
+    def path_parameters(self) -> List[str]:
         """Lists the (always required) path parameters for the specified REST API
         resource. This list is obtained by checking the path list (['api',
         'v2', '{para}', 'details']) for items that are within curly brackets
@@ -427,7 +431,7 @@ class ResourceConfig:
     # ---------------------------------------------------------------------------------------------
     @property
     def query_parameter_groups(self) -> dict:
-        """ Lists the different groups of query parameters for the specified
+        """Lists the different groups of query parameters for the specified
             REST API resource. When query parameters are in a group, only one of
             them can be used in a query at a time, unless the 'multiple' property
             has been used for every query parameter of that group.
@@ -447,11 +451,11 @@ class ResourceConfig:
     # ---------------------------------------------------------------------------------------------
     @property
     def query_parameters(self) -> dict:
-        """ Lists the required and optional query parameters for the specified REST API resource.
-            Also summarises the query parameters that can be multiple.
+        """Lists the required and optional query parameters for the specified REST API resource.
+        Also summarises the query parameters that can be multiple.
 
-            :return: A dictionary of the 'optional', 'required' and 'multiple' (keys) query
-                parameters (value, a list) for the specified REST API resource.
+        :return: A dictionary of the 'optional', 'required' and 'multiple' (keys) query
+            parameters (value, a list) for the specified REST API resource.
         """
         result = {"required": [], "optional": [], "multiple": []}
         for para_name, para_set in self.parameters.items():
@@ -468,11 +472,11 @@ class ResourceConfig:
     # --------------------------------------------------------------------------------------------
     @property
     def all_query_parameters(self):
-        """ Lists the required and optional query parameters for the specified REST API resource.
-            Also summarises the query parameters that can be multiple.
+        """Lists the required and optional query parameters for the specified REST API resource.
+        Also summarises the query parameters that can be multiple.
 
-            :return: A list of parameters
-            :rtype: ``list``
+        :return: A list of parameters
+        :rtype: ``list``
         """
         params = self.query_parameters
         return params["optional"] + params["required"]
@@ -480,32 +484,32 @@ class ResourceConfig:
     # --------------------------------------------------------------------------------------------
     @property
     def required_parameters(self):
-        """ Lists the required parameters for the specified REST API resource.
-            Also summarises the query parameters that can be multiple.
+        """Lists the required parameters for the specified REST API resource.
+        Also summarises the query parameters that can be multiple.
 
-            :return: A dictionary of the 'optional', 'required' and 'multiple' (keys) query
-                parameters (value, a list) for the specified REST API resource
-            :rtype: ``list``
+        :return: A dictionary of the 'optional', 'required' and 'multiple' (keys) query
+            parameters (value, a list) for the specified REST API resource
+        :rtype: ``list``
         """
         return self.path_parameters + self.query_parameters["required"]
 
     # --------------------------------------------------------------------------------------------
     @property
     def multiple_parameters(self):
-        """ Returns all parameters that can be used simultaneously
+        """Returns all parameters that can be used simultaneously
 
-            :return: A list of parameters
-            :rtype: ``list``
+        :return: A list of parameters
+        :rtype: ``list``
         """
         return self.query_parameters["multiple"]
 
     # --------------------------------------------------------------------------------------------
     @property
     def all_parameters(self):
-        """ Aggregates all parameters into a single structure
+        """Aggregates all parameters into a single structure
 
-            :return: A list of parameters
-            :rtype: ``list``
+        :return: A list of parameters
+        :rtype: ``list``
         """
         all_parameters = self.all_query_parameters + self.path_parameters
         return all_parameters
@@ -513,9 +517,9 @@ class ResourceConfig:
     # ---------------------------------------------------------------------------------------------
     @property
     def as_dict(self) -> dict:
-        """ show all parameters in path or query
+        """show all parameters in path or query
 
-            :return: A dictionary that contains required and optional parameters.
+        :return: A dictionary that contains required and optional parameters.
         """
 
         result = {"required": [], "optional": []}

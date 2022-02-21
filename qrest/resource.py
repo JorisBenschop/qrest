@@ -10,7 +10,7 @@ import logging
 import jsonschema
 from urllib.parse import quote, urljoin
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Dict, Optional, TYPE_CHECKING
 from _io import BufferedReader
 
 from requests.packages.urllib3 import disable_warnings
@@ -18,6 +18,9 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 # ================================================================================================
 # local imports
+if TYPE_CHECKING:
+    # we import ResourceConfig for type checking only to avoid a circular import
+    from .conf import ResourceConfig
 from .module_class_registry import ModuleClassRegistry
 from .response import Response
 from .utils import URLValidator
@@ -201,13 +204,13 @@ class Resource(ABC):
     """
 
     is_configured = False
-    config = None
+    config: Optional["ResourceConfig"] = None
 
     server_url = None
     request_parameters = None
     verify_ssl = False
     auth = None
-    cleaned_data = None
+    cleaned_data: Optional[Dict[str, Any]] = None
 
     response: Response
 
@@ -225,7 +228,14 @@ class Resource(ABC):
         pass
 
     # ---------------------------------------------------------------------------------------------
-    def configure(self, name: str, server_url: str, config, auth=None, verify_ssl: bool = False):
+    def configure(
+        self,
+        name: str,
+        server_url: str,
+        config: "ResourceConfig",
+        auth=None,
+        verify_ssl: bool = False,
+    ):
         """Configure the resource. This is a required procedure to set all parameters.
         Setting these parameters is not possible by using __init__, because
         this class is initialized within the config, to enable setting custom
@@ -278,6 +288,7 @@ class Resource(ABC):
         (value, a list)
 
         """
+        assert self.config is not None
         return self.config.as_dict
 
     # ---------------------------------------------------------------------------------------------
@@ -293,6 +304,7 @@ class Resource(ABC):
         Return string description of the endpoint and the parameters
         :param parameter_name: Optional parameter name to request the help text of
         """
+        assert self.config is not None
         if not parameter_name:
             return self.config.description or "No description given for this endpoint"
         if parameter_name not in self.config.all_parameters:
@@ -595,7 +607,7 @@ class Resource(ABC):
         except requests.Timeout as timeout:
             # Catch-all for both connection timeout and read timeout
             err_msg = "Request to client timed out for resource %s. requests exception: %s"
-            raise RestTimeoutError(err_msg  % (self.query_url, timeout.args[0]))
+            raise RestTimeoutError(err_msg % (self.query_url, timeout.args[0]))
         else:
             r = self.response(response)
             return r
