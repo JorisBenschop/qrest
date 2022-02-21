@@ -2,7 +2,7 @@
 Contains the configuration classes to create a :class:`qrest.resource.API`.
 """
 from collections import defaultdict
-from typing import Dict, Optional, Type
+from typing import Dict, List, Optional, Type
 
 import logging
 import jsonschema
@@ -222,7 +222,7 @@ class ResourceConfig:
         headers: Optional[dict] = None,
         processor: Optional[Type[Resource]] = None,
         description: Optional[str] = None,
-        path_description: Optional[dict] = None,
+        path_description: Optional[Dict[str, str]] = None,
     ):
         """
         Constructor, stores externally supplied parameters and validate the quality of it
@@ -245,7 +245,9 @@ class ResourceConfig:
         """
         self.path = path
         self.description = description
-        self.path_description = path_description
+        self.path_description: Dict[
+            str, str
+        ] = path_description if path_description is not None else {}
         self.method = method
         self.parameters = parameters or {}
         self.headers = headers
@@ -372,7 +374,7 @@ class ResourceConfig:
 
     # ---------------------------------------------------------------------------------------------
     @property
-    def path_parameters(self) -> list:
+    def path_parameters(self) -> List[str]:
         """Lists the (always required) path parameters for the specified REST API
         resource. This list is obtained by checking the path list (['api',
         'v2', '{para}', 'details']) for items that are within curly brackets

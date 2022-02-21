@@ -62,7 +62,9 @@ tomli==2.0.1
 tqdm==4.48.2
 twine==3.2.0
 typed-ast==1.4.1
-typing_extensions==4.1.1
+types-requests==2.27.10
+types-urllib3==1.26.9
+typing-extensions==4.1.1
 urllib3==1.25.9
 wcwidth==0.2.5
 webencodings==0.5.1
