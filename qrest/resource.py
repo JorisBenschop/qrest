@@ -28,9 +28,9 @@ from .exception import (
     RestClientQueryError,
     RestClientConfigurationError,
     RestCredentailsError,
-    RestResourceHTTPError,
     InvalidResourceError,
     RestClientValidationError,
+    raise_on_response_error,
 )
 from .response import CSVResponse, JSONResponse
 from .auth import AuthConfig
@@ -586,11 +586,7 @@ class Resource(ABC):
             )
             assert isinstance(response, requests.Response)
 
-            if response.status_code > 399:  # Nicely catch exceptions
-                raise RestResourceHTTPError(response_object=response)
-            # for completeness sake: let requests check for valid output
-            # code should not get here...
-            response.raise_for_status()
+            raise_on_response_error(response)
         except ValueError:
             # Weird response errors: just give back the raw data. This has the risk of dismissing
             # valid errors!

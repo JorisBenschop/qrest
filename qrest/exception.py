@@ -2,7 +2,6 @@
 local exceptions
 """
 
-from requests import HTTPError
 from requests.models import Response
 
 
@@ -108,32 +107,26 @@ class RestBadRequestError(RestClientResourceError):
     pass
 
 
-class RestResourceHTTPError(HTTPError):
-    """An error when specifying an invalid target for a given REST API."""
+def raise_on_response_error(response: Response):
+    """Raise custom exception for response status (code) 400 and higher.
 
-    def __init__(self, response_object, *args, **kwargs):
-        """
-        RestResourceError constructor
-        """
+    If the status code is below 400, this function calls
+    response.raise_for_status and it is up to that function what to do.
 
-        assert isinstance(response_object, Response)
-        self.response = response_object
-        self.code = self.response.status_code
-        self.reason = self.response.reason
-
-        if self.code == 400:
-            raise RestBadRequestError("Bad request for resource %s" % (self.response.url,))
-        elif self.code == 404:
-            raise RestResourceNotFoundError("Object could not be found in database")
-        elif self.code in (401, 402, 403):
-            raise RestAccessDeniedError(
-                "error %d: Access is denied to resource %s" % (self.code, self.response.url)
-            )
-        elif self.code in (500,):
-            raise RestInternalServerError(
-                "error %d: Internal Server error (%s)" % (self.code, self.reason)
-            )
-        else:
-            raise Exception("REST error %d: %s" % (self.code, self.reason))
-
-        super().__init__(*args, **kwargs)
+    """
+    if response.status_code < 400:
+        response.raise_for_status()
+    elif response.status_code == 400:
+        raise RestBadRequestError("Bad request for resource %s" % response.url)
+    elif response.status_code in (401, 402, 403):
+        raise RestAccessDeniedError(
+            "error %d: Access is denied to resource %s" % (response.status_code, response.url)
+        )
+    elif response.status_code == 404:
+        raise RestResourceNotFoundError("Object could not be found in database")
+    elif response.status_code == 500:
+        raise RestInternalServerError(
+            "error %d: Internal Server error (%s)" % (response.status_code, response.reason)
+        )
+    else:
+        raise Exception("REST error %d: %s" % (response.status_code, response.reason))
