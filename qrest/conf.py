@@ -43,7 +43,7 @@ class ParameterConfig:
         choices: Optional[list] = None,
         description: Optional[str] = None,
         schema: Optional[Dict[any, any]] = None,
-        example: Optional[any] = None
+        example: Optional[any] = None,
     ):
         """
         Parameter configuration. Details the name and limitations on the REST parameter and how it
@@ -110,7 +110,7 @@ class ParameterConfig:
 
         if self.schema is not None:
             if not isinstance(self.schema, dict):
-                raise RestClientConfigurationError('parameter schema must be dict')
+                raise RestClientConfigurationError("parameter schema must be dict")
             try:
                 #  Select the correct validator for the provided schema
                 schema_validator_cls = jsonschema.validators.validator_for(self.schema)
@@ -343,7 +343,8 @@ class ResourceConfig:
                 if self.parameters[key].call_location in ["body", "file"]:
                     raise RestClientConfigurationError(
                         "{} parameter not allowed in GET request".format(
-                            self.parameters[key].call_location)
+                            self.parameters[key].call_location
+                        )
                     )
 
     # --------------------------------------------------------------------------------------------

@@ -189,10 +189,10 @@ class TestJsonPlaceHolder(unittest.TestCase):
         api = qrest.API(jsonplaceholderconfig)
         api.upload_file.response = ContentResponse()
 
-        file = open(qrest.__file__, 'rb')
+        file = open(qrest.__file__, "rb")
 
         with mock.patch("requests.request", return_value=self.mock_response) as mock_request:
-            response = api.upload_file.get_response(file=('__init__.py', file))
+            response = api.upload_file.get_response(file=("__init__.py", file))
 
             mock_request.assert_called_with(
                 method="POST",
@@ -201,7 +201,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/files",
                 params={},
                 json={},
-                files=[('file', ('__init__.py', file))],
+                files=[("file", ("__init__.py", file))],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
             self.assertIs(api.upload_file.response, response)
@@ -210,7 +210,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
         api = qrest.API(jsonplaceholderconfig)
         api.create_post_with_schema.response = ContentResponse()
 
-        post = {'user': 'Alice', 'body': 'Something about bob'}
+        post = {"user": "Alice", "body": "Something about bob"}
 
         with mock.patch("requests.request", return_value=self.mock_response) as mock_request:
             response = api.create_post_with_schema.get_response(post=post)
@@ -232,7 +232,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
         api.create_post_with_schema.response = ContentResponse()
 
         # parameter that does not obey the schema
-        post = {'user': 'Alice', 'message': 'Something about bob'}
+        post = {"user": "Alice", "message": "Something about bob"}
 
         with self.assertRaises(RestClientValidationError) as exc:
             api.create_post_with_schema.get_response(post=post)
