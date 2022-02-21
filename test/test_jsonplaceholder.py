@@ -61,7 +61,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/posts",
                 params={},
                 json={},
-                timeout=(None,None),
+                timeout=(None, None),
                 files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -82,7 +82,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/posts",
                 params={},
                 json={},
-                timeout=(None,None),
+                timeout=(None, None),
                 files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -104,7 +104,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={},
                 json={},
                 files=[],
-                timeout=(None,None),
+                timeout=(None, None),
                 headers={
                     "Content-type": "application/json; charset=UTF-8",
                     "X-test-post": "qREST python ORM",
@@ -128,7 +128,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={"userId": 1},
                 json={},
                 files=[],
-                timeout=(None,None),
+                timeout=(None, None),
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
 
@@ -157,7 +157,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={},
                 json={},
                 files=[],
-                timeout=(None,None),
+                timeout=(None, None),
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
 
@@ -186,7 +186,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 params={},
                 json={"title": title, "body": content, "userId": user_id},
                 files=[],
-                timeout=(None,None),
+                timeout=(None, None),
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
             self.assertIs(api.create_post.response, response)
@@ -195,9 +195,9 @@ class TestJsonPlaceHolder(unittest.TestCase):
         api = qrest.API(jsonplaceholderconfig)
         api.upload_file.response = ContentResponse()
 
-        with open(qrest.__file__, 'rb') as file:
+        with open(qrest.__file__, "rb") as file:
             with mock.patch("requests.request", return_value=self.mock_response) as mock_request:
-                response = api.upload_file.get_response(file=('__init__.py', file))
+                response = api.upload_file.get_response(file=("__init__.py", file))
 
                 mock_request.assert_called_with(
                     method="POST",
@@ -206,8 +206,8 @@ class TestJsonPlaceHolder(unittest.TestCase):
                     url="https://jsonplaceholder.typicode.com/files",
                     params={},
                     json={},
-                    timeout=(None,None),
-                    files=[('file', ('__init__.py', file))],
+                    timeout=(None, None),
+                    files=[("file", ("__init__.py", file))],
                     headers={"Content-type": "application/json; charset=UTF-8"},
                 )
                 self.assertIs(api.upload_file.response, response)
@@ -216,7 +216,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
         api = qrest.API(jsonplaceholderconfig)
         api.create_post_with_schema.response = ContentResponse()
 
-        post = {'user': 'Alice', 'body': 'Something about bob'}
+        post = {"user": "Alice", "body": "Something about bob"}
 
         with mock.patch("requests.request", return_value=self.mock_response) as mock_request:
             response = api.create_post_with_schema.get_response(post=post)
@@ -228,7 +228,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/posts",
                 params={},
                 json=post,
-                timeout=(None,None),
+                timeout=(None, None),
                 files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -239,7 +239,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
         api.create_post_with_schema.response = ContentResponse()
 
         # parameter that does not obey the schema
-        post = {'user': 'Alice', 'message': 'Something about bob'}
+        post = {"user": "Alice", "message": "Something about bob"}
 
         with self.assertRaises(RestClientValidationError) as exc:
             api.create_post_with_schema.get_response(post=post)
@@ -249,7 +249,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
     def test_timeout_exception(self):
         api = qrest.API(jsonplaceholderconfig)
 
-        with mock.patch("requests.request", side_effect=requests.exceptions.Timeout('foo')):
+        with mock.patch("requests.request", side_effect=requests.exceptions.Timeout("foo")):
             with self.assertRaises(RestTimeoutError):
                 api.all_posts()
 
@@ -267,7 +267,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 url="https://jsonplaceholder.typicode.com/posts",
                 params={},
                 json={},
-                timeout=(5.0,None),
+                timeout=(5.0, None),
                 files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )

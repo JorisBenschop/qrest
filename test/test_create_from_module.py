@@ -145,9 +145,11 @@ class ResourceConfigCreateTests(unittest.TestCase):
         with mock.patch.object(MyConfig, "__init__", return_value=None) as init_dunder:
             _ = MyConfig.create()
 
-            expected_parameters = {"title": MyConfig.title,
-                                   "user_id": MyConfig.user_id,
-                                   "file": MyConfig.file}
+            expected_parameters = {
+                "title": MyConfig.title,
+                "user_id": MyConfig.user_id,
+                "file": MyConfig.file,
+            }
 
             _, kwargs = init_dunder.call_args
             self.assertDictEqual({"parameters": expected_parameters}, kwargs)

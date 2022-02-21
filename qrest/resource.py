@@ -161,8 +161,10 @@ class API:
         #  name attribute of a body parameter should be set to None. In that case, only
         #  one body parameter is allowed.
         if b_names.count(None) > 0 and len(b_names) > 1:
-            msg = "No additional body parameters allowed if body parameter " \
-                  "has name attribute with value None."
+            msg = (
+                "No additional body parameters allowed if body parameter "
+                "has name attribute with value None."
+            )
             raise RestClientConfigurationError(msg)
 
         processor.configure(
@@ -370,7 +372,7 @@ class Resource(ABC):
                 try:
                     schema_validator_cls(config.schema).validate(instance)
                 except jsonschema.ValidationError:
-                    msg = 'value for {} does not obey schema'.format(parameter)
+                    msg = "value for {} does not obey schema".format(parameter)
                     raise RestClientValidationError(msg)
 
         # ----------------------------------
@@ -400,30 +402,30 @@ class Resource(ABC):
         for parameter in kwargs:
             if parameter not in self.config.parameters:
                 continue
-            if self.config.parameters[parameter].call_location != 'file':
+            if self.config.parameters[parameter].call_location != "file":
                 continue
             val = kwargs[parameter]
             if not isinstance(val, tuple):
                 raise RestClientConfigurationError(
                     "parameter {} should be tuple (filename(str), file(BufferedReader))".format(
-                        parameter)
+                        parameter
                     )
+                )
             if len(val) != 2:
                 raise RestClientConfigurationError(
                     "parameter {} should be tuple (filename(str), file(BufferedReader)) of "
-                    "size 2".format(
-                        parameter)
-                    )
+                    "size 2".format(parameter)
+                )
             if not isinstance(val[0], str):
                 raise RestClientConfigurationError(
-                    "First item of parameter {} (tuple) should be str (filename)".format(
-                        parameter)
-                    )
+                    "First item of parameter {} (tuple) should be str (filename)".format(parameter)
+                )
             if not isinstance(val[1], BufferedReader):
                 raise RestClientConfigurationError(
                     "Second item of parameter {} (tuple) should be BufferedReader (file)".format(
-                        parameter)
+                        parameter
                     )
+                )
 
         # apply defaults for missing optional parameters that do have default values
         defaults = self.config.defaults
@@ -497,7 +499,7 @@ class Resource(ABC):
         return_structure = {
             "request": request_parameters,
             "body": body_parameters,
-            "file": file_parameters
+            "file": file_parameters,
         }
 
         return return_structure
@@ -549,14 +551,14 @@ class Resource(ABC):
                 if len(item[1]) != 2:
                     raise RestClientQueryError(
                         f"extra_file item[1] should have two items: {item[1]}"
-                        )
+                    )
                 if not isinstance(item[1][0], str):
                     raise RestClientQueryError(f"extra_file item[1][0] is not str: {item[1][0]}")
                 if not isinstance(item[1][1], BufferedReader):
                     raise RestClientQueryError(
                         f"extra_file item[1][1] is not BufferedReader: {item[1][1]}"
-                        )
-            query_parameters['file'].extend(extra_file)
+                    )
+            query_parameters["file"].extend(extra_file)
 
         # Convert timeout to requests format
         timeout = tuple(None if value == 0 else value/1000 for value in self.config.timeout)
