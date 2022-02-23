@@ -94,7 +94,9 @@ This is a dictionary that contains the default headers for all ResourceConfig
 instances of the APIConfig class. Its aim is to prevent a lot of duplicate
 information. The headers that a ResourceConfig uses consist of these defaults,
 extended or overridden by the defaults that can be specified for that
-ResourceConfig.
+ResourceConfig. The only exception to this behaviour is the value ``None``,
+if this header is specified on a ResourceConfig object, it will be overridden
+by the ``default_headers`` value.
 
 default_timeout
 ===============
@@ -103,6 +105,9 @@ default_timeout
 of the APIConfig class. Its aim is to prevent a lot of duplicate information.
 The ResourceConfig will use this timeout, unless a specific timeout parameter
 was set for the ResourceConfig, in which case the default will be overridden.
+The only exception to this behaviour is the value ``(0, 0)``, if this timeout is
+specified on a ResourceConfig object, it will be overridden by the
+``default_timeout`` value.
 
 authentication
 ==============
@@ -254,7 +259,7 @@ timeout
 You can tell qrest to stop waiting for a response after a given number of milliseconds
 with the timeout parameter. When this time has passed, qrest will raise a
 ``qrest.exception.RestTimeoutError`` exception. The value of ``timeout`` should be
-a tuple (connection timeout, read timeout)of size 2, where both timeouts are an
+a tuple (connection timeout, read timeout) of size 2, where both timeouts are an
 integer, indicating the timeout duration in milliseconds. A timeout of 0 (default)
 indicates that there shouldn't be a timeout on the request.
 

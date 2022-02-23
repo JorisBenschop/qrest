@@ -2,7 +2,7 @@
 Contains the configuration classes to create a :class:`qrest.resource.API`.
 """
 from collections import defaultdict
-from typing import Dict, Optional, Type
+from typing import Dict, Optional, Type, Tuple
 
 import logging
 import jsonschema
@@ -223,7 +223,7 @@ class ResourceConfig:
         processor: Optional[Type[Resource]] = None,
         description: Optional[str] = None,
         path_description: Optional[dict] = None,
-        timeout: Optional[tuple] = (0, 0)
+        timeout: Tuple[int, int] = (0, 0),
     ):
         """
         Constructor, stores externally supplied parameters and validate the quality of it
@@ -355,8 +355,8 @@ class ResourceConfig:
             raise RestClientConfigurationError(err_msg)
         for value in self.timeout:
             if isinstance(value, int):
-                    if value < 0:
-                        raise RestClientConfigurationError(err_msg)
+                if value < 0:
+                    raise RestClientConfigurationError(err_msg)
             else:
                 raise RestClientConfigurationError(err_msg)
 
@@ -376,7 +376,7 @@ class ResourceConfig:
 
     # --------------------------------------------------------------------------------------------
     def apply_default_headers(self, default):
-        """Merge default set headers on APIConfig level with local header settings
+        """Merge the given default headers with the local header settings.
         """
 
         # check types
@@ -394,7 +394,7 @@ class ResourceConfig:
 
     # ---------------------------------------------------------------------------------------------
     def apply_default_timeout(self, default):
-        """Merge default set timeout on APIConfig level with local timeout settings
+        """Apply the given default timeouts if the local timeout is set to its default value.
         """
 
         # Only apply the default if no timeout is set at the ResourceConfig level

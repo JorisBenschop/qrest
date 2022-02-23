@@ -103,13 +103,13 @@ class RestInternalServerError(RestClientResourceError):
 
 
 class RestBadRequestError(RestClientResourceError):
-    """ wrapper excpetion """
+    """ wrapper exception """
 
     pass
 
 
 class RestTimeoutError(RestClientResourceError):
-    """ wrapper excpetion """
+    """ wrapper exception """
 
     pass
 
