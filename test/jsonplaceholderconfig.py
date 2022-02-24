@@ -112,3 +112,12 @@ class AllPostsReadTimeout(ResourceConfig):
     method = "GET"
     description = "retrieve all posts"
     timeout = (5000, 10)
+
+
+class AllPostsValidTimeout(ResourceConfig):
+
+    name = "all_posts_with_valid_timeout_values"
+    path = ["posts"]
+    method = "GET"
+    description = "retrieve all posts"
+    timeout = (5000, 0)

@@ -398,7 +398,7 @@ class ResourceConfig:
         """
 
         # Only apply the default if no timeout is set at the ResourceConfig level
-        if self.timeout is (0, 0):
+        if self.timeout == (0, 0):
             self.timeout = default
 
         # re-validate to be sure current data is OK
