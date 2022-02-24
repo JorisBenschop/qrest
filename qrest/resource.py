@@ -559,7 +559,7 @@ class Resource(ABC):
             query_parameters['file'].extend(extra_file)
 
         # Convert timeout to requests format
-        timeout = tuple(None if value is 0 else value/1000 for value in self.config.timeout)
+        timeout = tuple(None if value == 0 else value/1000 for value in self.config.timeout)
 
         # Do HTTP request to REST API
         logger.debug(" running %s" % self.query_url)
