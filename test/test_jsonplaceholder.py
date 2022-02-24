@@ -195,23 +195,22 @@ class TestJsonPlaceHolder(unittest.TestCase):
         api = qrest.API(jsonplaceholderconfig)
         api.upload_file.response = ContentResponse()
 
-        file = open(qrest.__file__, 'rb')
+        with open(qrest.__file__, 'rb') as file:
+            with mock.patch("requests.request", return_value=self.mock_response) as mock_request:
+                response = api.upload_file.get_response(file=('__init__.py', file))
 
-        with mock.patch("requests.request", return_value=self.mock_response) as mock_request:
-            response = api.upload_file.get_response(file=('__init__.py', file))
-
-            mock_request.assert_called_with(
-                method="POST",
-                auth=None,
-                verify=False,
-                url="https://jsonplaceholder.typicode.com/files",
-                params={},
-                json={},
-                timeout=(None,None),
-                files=[('file', ('__init__.py', file))],
-                headers={"Content-type": "application/json; charset=UTF-8"},
-            )
-            self.assertIs(api.upload_file.response, response)
+                mock_request.assert_called_with(
+                    method="POST",
+                    auth=None,
+                    verify=False,
+                    url="https://jsonplaceholder.typicode.com/files",
+                    params={},
+                    json={},
+                    timeout=(None,None),
+                    files=[('file', ('__init__.py', file))],
+                    headers={"Content-type": "application/json; charset=UTF-8"},
+                )
+                self.assertIs(api.upload_file.response, response)
 
     def test_create_post_with_schema(self):
         api = qrest.API(jsonplaceholderconfig)
