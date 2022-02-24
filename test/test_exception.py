@@ -19,6 +19,7 @@ class RaiseOnResponseErrorTests(unittest.TestCase):
         response = requests.Response()
         response.url = "https://jsonplaceholder.typicode.com/posts"
         response.status_code = 400
+        response.reason = "invalid request"
 
         with self.assertRaises(RestBadRequestError) as cm:
             raise_on_response_error(response)
@@ -26,20 +27,22 @@ class RaiseOnResponseErrorTests(unittest.TestCase):
         exc = cm.exception
         self.assertIs(exc.response, response)
         self.assertEqual(
-            "Bad request for resource https://jsonplaceholder.typicode.com/posts", str(exc)
+            "Bad request for resource https://jsonplaceholder.typicode.com/posts (invalid request)",
+            str(exc),
         )
 
     def test_raise_on_404(self):
         response = requests.Response()
         response.url = "https://jsonplaceholder.typicode.com/posts"
         response.status_code = 404
+        response.reason = "page does not exist"
 
         with self.assertRaises(RestResourceNotFoundError) as cm:
             raise_on_response_error(response)
 
         exc = cm.exception
         self.assertIs(exc.response, response)
-        self.assertEqual("Object could not be found in database", str(exc))
+        self.assertEqual("Object could not be found in database (page does not exist)", str(exc))
 
     @ddt.data(401, 402, 403)
     def test_raise_on_40x(self, status_code):

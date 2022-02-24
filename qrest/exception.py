@@ -112,7 +112,7 @@ class RestAccessDeniedError(RestResponseError):
 
 class RestBadRequestError(RestResponseError):
     def __init__(self, response: Response):
-        super().__init__(response, f"Bad request for resource {response.url}")
+        super().__init__(response, f"Bad request for resource {response.url} ({response.reason})")
 
 
 class RestInternalServerError(RestResponseError):
@@ -124,7 +124,7 @@ class RestInternalServerError(RestResponseError):
 
 class RestResourceNotFoundError(RestResponseError):
     def __init__(self, response: Response):
-        super().__init__(response, "Object could not be found in database")
+        super().__init__(response, f"Object could not be found in database ({response.reason})")
 
 
 class RestUnspecificResponseError(RestResponseError):
