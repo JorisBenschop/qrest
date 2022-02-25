@@ -247,14 +247,12 @@ class TestJsonPlaceHolder(unittest.TestCase):
 
         self.assertEqual(exc.exception.args[0], "value for post does not obey schema")
 
-    def test_timeout_exceptions(self):
+    def test_timeout_exception(self):
         api = qrest.API(jsonplaceholderconfig)
 
-        with self.assertRaises(RestTimeoutError):
-            api.all_posts_connect_timeout.get_response()
-
-        with self.assertRaises(RestTimeoutError):
-            api.all_posts_read_timeout.get_response()
+        with mock.patch("requests.request", side_effect=requests.exceptions.Timeout('foo')):
+            with self.assertRaises(RestTimeoutError):
+                api.all_posts()
 
     def test_get_posts_with_valid_timeout(self):
         api = qrest.API(jsonplaceholderconfig)

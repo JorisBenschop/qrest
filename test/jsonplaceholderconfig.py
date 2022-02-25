@@ -96,24 +96,6 @@ class UploadFile(ResourceConfig):
     file = FileParameter(name='file', required=True, description="The file to be uploaded")
 
 
-class AllPostsConnectTimeout(ResourceConfig):
-
-    name = "all_posts_connect_timeout"
-    path = ["posts"]
-    method = "GET"
-    description = "retrieve all posts"
-    timeout = (10, 5000)
-
-
-class AllPostsReadTimeout(ResourceConfig):
-
-    name = "all_posts_read_timeout"
-    path = ["posts"]
-    method = "GET"
-    description = "retrieve all posts"
-    timeout = (5000, 10)
-
-
 class AllPostsValidTimeout(ResourceConfig):
 
     name = "all_posts_with_valid_timeout_values"
