@@ -1,7 +1,9 @@
 4.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add response information to custom exceptions in case of response code 400 or
+  greater.
+- Support timeout on qrest endpoint definitions.
 
 
 4.0.0 (2021-11-08)
