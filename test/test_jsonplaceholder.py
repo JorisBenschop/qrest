@@ -59,10 +59,10 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 auth=None,
                 verify=False,
                 url="https://jsonplaceholder.typicode.com/posts",
-                params={},
-                json={},
+                # params={},
+                # json={},
                 timeout=(None, None),
-                files=[],
+                # files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
 
@@ -80,10 +80,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 auth=None,
                 verify=False,
                 url="https://jsonplaceholder.typicode.com/posts",
-                params={},
-                json={},
                 timeout=(None, None),
-                files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
 
@@ -101,9 +98,6 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 auth=None,
                 verify=False,
                 url="https://jsonplaceholder.typicode.com/posts/1",
-                params={},
-                json={},
-                files=[],
                 timeout=(None, None),
                 headers={
                     "Content-type": "application/json; charset=UTF-8",
@@ -126,8 +120,6 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 verify=False,
                 url="https://jsonplaceholder.typicode.com/posts",
                 params={"userId": 1},
-                json={},
-                files=[],
                 timeout=(None, None),
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -154,9 +146,6 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 auth=None,
                 verify=False,
                 url="https://jsonplaceholder.typicode.com/posts/1/comments",
-                params={},
-                json={},
-                files=[],
                 timeout=(None, None),
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -183,9 +172,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 auth=None,
                 verify=False,
                 url="https://jsonplaceholder.typicode.com/posts",
-                params={},
                 json={"title": title, "body": content, "userId": user_id},
-                files=[],
                 timeout=(None, None),
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
@@ -204,11 +191,9 @@ class TestJsonPlaceHolder(unittest.TestCase):
                     auth=None,
                     verify=False,
                     url="https://jsonplaceholder.typicode.com/files",
-                    params={},
-                    json={},
                     timeout=(None, None),
-                    files=[("file", ("__init__.py", file))],
                     headers={"Content-type": "application/json; charset=UTF-8"},
+                    files=[("file", ("__init__.py", file))],
                 )
                 self.assertIs(api.upload_file.response, response)
 
@@ -226,10 +211,8 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 auth=None,
                 verify=False,
                 url="https://jsonplaceholder.typicode.com/posts",
-                params={},
                 json=post,
                 timeout=(None, None),
-                files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
             self.assertIs(api.create_post_with_schema.response, response)
@@ -265,10 +248,7 @@ class TestJsonPlaceHolder(unittest.TestCase):
                 auth=None,
                 verify=False,
                 url="https://jsonplaceholder.typicode.com/posts",
-                params={},
-                json={},
                 timeout=(5.0, None),
-                files=[],
                 headers={"Content-type": "application/json; charset=UTF-8"},
             )
 
