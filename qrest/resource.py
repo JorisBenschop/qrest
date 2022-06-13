@@ -573,22 +573,30 @@ class Resource(ABC):
             query_parameters["file"].extend(extra_file)
 
         # Convert timeout to requests format
-        timeout = tuple(None if value == 0 else value/1000 for value in self.config.timeout)
+        timeout = tuple(None if value == 0 else value / 1000 for value in self.config.timeout)
 
         # Do HTTP request to REST API
         logger.debug(" running %s" % self.query_url)
+
+        params = {
+            "method": self.config.method,
+            "auth": self.auth,
+            "verify": self.verify_ssl,
+            "timeout": timeout,
+            "url": self.query_url,
+            "headers": self.config.headers,
+        }
+
+        # some backends (e.g. TIBCO) cannot handle empty parameter sets:
+        params_optional = {
+            "params": query_parameters["request"] or None,
+            "json": query_parameters["body"] or None,
+            "files": query_parameters["file"] or None,
+        }
+        params.update({k: v for k, v in params_optional.items() if v})
+
         try:
-            response = requests.request(
-                method=self.config.method,
-                auth=self.auth,
-                verify=self.verify_ssl,
-                timeout=timeout,
-                url=self.query_url,
-                params=query_parameters["request"],
-                json=query_parameters["body"],
-                files=query_parameters["file"],
-                headers=self.config.headers,
-            )
+            response = requests.request(**params)
             assert isinstance(response, requests.Response)
 
             raise_on_response_error(response)
