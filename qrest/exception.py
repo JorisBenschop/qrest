@@ -112,13 +112,18 @@ class RestAccessDeniedError(RestResponseError):
 
 class RestBadRequestError(RestResponseError):
     def __init__(self, response: Response):
-        super().__init__(response, f"Bad request for resource {response.url} ({response.reason})")
+        super().__init__(
+            response,
+            f"Bad request for resource {response.url} ({response.reason}): {response.text}",
+        )
 
 
 class RestInternalServerError(RestResponseError):
     def __init__(self, response: Response):
         super().__init__(
-            response, f"error {response.status_code}: Internal Server error ({response.reason})"
+            response,
+            f"error {response.status_code}: Internal Server error ({response.reason}):"
+            f" {response.text}",
         )
 
 

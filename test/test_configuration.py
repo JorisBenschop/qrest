@@ -351,7 +351,7 @@ class TestEndpoint(unittest.TestCase):
             url = "http://localhost"
 
         config = Config(_create_endpoints())
-        self.assertEqual(config.endpoints["ep"].timeout, (0,0))
+        self.assertEqual(config.endpoints["ep"].timeout, (0, 0))
 
     def test_descriptions(self):
         self.UrlApiConfig(_create_endpoints(description="OK"))
