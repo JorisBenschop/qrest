@@ -20,6 +20,7 @@ class RaiseOnResponseErrorTests(unittest.TestCase):
         response.url = "https://jsonplaceholder.typicode.com/posts"
         response.status_code = 400
         response.reason = "invalid request"
+        response._content = "invalid parameters".encode("utf-8")
 
         with self.assertRaises(RestBadRequestError) as cm:
             raise_on_response_error(response)
@@ -27,7 +28,8 @@ class RaiseOnResponseErrorTests(unittest.TestCase):
         exc = cm.exception
         self.assertIs(exc.response, response)
         self.assertEqual(
-            "Bad request for resource https://jsonplaceholder.typicode.com/posts (invalid request)",
+            "Bad request for resource https://jsonplaceholder.typicode.com/posts"
+            " (invalid request): invalid parameters",
             str(exc),
         )
 
@@ -66,13 +68,14 @@ class RaiseOnResponseErrorTests(unittest.TestCase):
         response.url = "https://jsonplaceholder.typicode.com/posts"
         response.status_code = 500
         response.reason = "reason"
+        response._content = "server issues".encode("utf-8")
 
         with self.assertRaises(RestInternalServerError) as cm:
             raise_on_response_error(response)
 
         exc = cm.exception
         self.assertIs(exc.response, response)
-        self.assertEqual("error 500: Internal Server error (reason)", str(exc))
+        self.assertEqual("error 500: Internal Server error (reason): server issues", str(exc))
 
     def test_raise_on_600(self):
         response = requests.Response()
